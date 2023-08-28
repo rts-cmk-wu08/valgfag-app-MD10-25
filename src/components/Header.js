@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Header = () => {
     return ( 
-        <header>
+        <header className="bg-black text-white">
             <nav>
                 <Link to="/">Home</Link>
                 <Link to="weather">The weather</Link>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import placeholder from "../images/download.jpg"
 
 
 const Weather = () => {
@@ -49,23 +49,60 @@ const Weather = () => {
   }, [myPos]);
 
    
+// forecast for next 5 days
+  // api.openweathermap.org/data/2.5/forecast/daily?lat={lat}&lon={lon}&cnt={cnt}&appid={API key}
 
+  console.log(posWeather)
 
 
     return ( 
         <section>
-            <h1>Check the weather</h1>
-            <input 
-                type="text" 
-                placeholder='Enter city/town'
-                onChange={(e) => setSearch(e.target.value)}
-            />
-            <button onClick={searchPressed}>Search</button>
-            <p>{search === "" ? posWeather?.name : weatherResults?.name}</p>
-            <p>{search === "" ? posWeather?.main?.temp.toFixed(0) : weatherResults?.main?.temp.toFixed(0)}</p>
-            <p>{search === "" ? posWeather?.weather && posWeather.weather[0]?.main : weatherResults?.weather && weatherResults.weather[0]?.main}</p>
-            <p>{search === "" ? posWeather?.weather && "("+posWeather.weather[0]?.description+")" : weatherResults?.weather && "("+weatherResults.weather[0]?.description+")"}</p>
-            <p>{errorMessage}</p>
+            <div className='w-full relative flex justify-center'>
+              <img src={placeholder} alt="Placeholder" className='w-full'/>
+              <div className='absolute flex flex-col w-96 mt-10'>
+              <input 
+                  type="text" 
+                  placeholder='Enter city/town'
+                  onChange={(e) => setSearch(e.target.value)}
+                  className='rounded-xl h-8 pl-4'
+              />
+              <button onClick={searchPressed}>Search</button>
+              </div>
+
+            <div className='flex w-full absolute bottom-0  bg-white/75'>
+              <div className='flex flex-col justify-between'>
+                {/* <p className='text-[76px] text-center'>{search === "" ? posWeather?.main?.temp.toFixed(0) : weatherResults?.main?.temp.toFixed(0)}&deg;</p> */}
+                <p className='text-[76px] text-center'>
+                  {search === "" ? (posWeather?.main?.temp !== undefined ? posWeather.main.temp.toFixed(0) + "°" : "") : (weatherResults?.main?.temp !== undefined ? weatherResults.main.temp.toFixed(0) + "°" : "")}
+                </p>
+                <p className='font-bold text-lg'>{search === "" ? posWeather?.name : weatherResults?.name}</p>
+              </div>
+              <div className='flex flex-col justify-between'>
+              {
+                search === "" && posWeather.weather ? (
+                  <img
+                    className='w-[90px] mt-5 rounded-full h-auto'
+                    src={`https://openweathermap.org/img/wn/${posWeather.weather[0]?.icon}@2x.png`}
+                    alt="icon"
+                  />
+                ) : (
+                  weatherResults?.weather && (
+                    <img
+                      className='w-[90px] mt-5 rounded-full h-auto'
+                      src={`https://openweathermap.org/img/wn/${weatherResults.weather[0]?.icon}@2x.png`}
+                      alt="icon"
+                    />
+                  )
+                )
+              }
+                <p className='font-bold text-lg text-center'>{search === "" ? posWeather?.weather && posWeather.weather[0]?.main : weatherResults?.weather && weatherResults.weather[0]?.main}</p>
+              </div>
+              <p>{errorMessage}</p>
+            </div>
+
+            </div>
+              
+
         </section>
      );
 }
