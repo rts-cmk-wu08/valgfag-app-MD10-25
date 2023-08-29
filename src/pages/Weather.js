@@ -9,6 +9,8 @@ const Weather = () => {
   const [search, setSearch] = useState("");
   const [weatherResults, setWeatherResults] = useState({});
   const [posWeather, setPosWeather] = useState({});
+  const [isError, setIsError] = useState(false);
+  const [myPosForecastResults, setmyPosForecastResults] = useState();
 
   const searchPressed = async () => {
     try {
@@ -16,14 +18,17 @@ const Weather = () => {
         if (!response.ok) {
           if(response.status !== 404) {
             setErrorMessage(response.statusText);
+            setIsError(true)
           }
           else{
             setErrorMessage("We are sorry the city you searched for could not be found...")
+            setIsError(true)
           }
             return;
         }
  
         const result = await response.json();
+        setIsError(false)
         setWeatherResults(result);
     } catch (error) {
         console.error("An error occurred while processing the data:", error);
@@ -39,20 +44,28 @@ const Weather = () => {
   }, []);
 
   useEffect(() => {
-    if(myPos) {
+    if (myPos) {
+      // Fetch current weather data
       fetch(`${baseURL}weather?lat=${myPos?.coords?.latitude}&lon=${myPos?.coords?.longitude}&appid=${process.env.REACT_APP_OPENWEATHER}&units=metric`)
-      .then(res => res.json())
-      .then(result => {
-        setPosWeather(result)
-      })
+        .then(res => res.json())
+        .then(result => {
+          setPosWeather(result);
+        })
+        .catch(error => {
+          console.error("An error occurred while fetching current weather:", error);
+        });
+   
+      // Fetch forecast data
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${myPos?.coords?.latitude}&lon=${myPos?.coords?.longitude}&appid=${process.env.REACT_APP_OPENWEATHER}&units=metric`)
+        .then(response => response.json())
+        .then(data => setmyPosForecastResults(data?.list))
+        .catch(error => console.error("An error occurred while fetching forecast:", error));
     }
-  }, [myPos]);
+   }, [myPos]);
 
    
-// forecast for next 5 days
-  // api.openweathermap.org/data/2.5/forecast/daily?lat={lat}&lon={lon}&cnt={cnt}&appid={API key}
 
-  console.log(posWeather)
+  console.log(myPosForecastResults)
 
 
     return ( 
@@ -97,7 +110,7 @@ const Weather = () => {
               }
                 <p className='font-bold text-lg text-center'>{search === "" ? posWeather?.weather && posWeather.weather[0]?.main : weatherResults?.weather && weatherResults.weather[0]?.main}</p>
               </div>
-              <p>{errorMessage}</p>
+              <p>{isError ? errorMessage : null}</p>
             </div>
 
             </div>
