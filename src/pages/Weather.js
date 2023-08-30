@@ -11,6 +11,7 @@ const Weather = () => {
   const [posWeather, setPosWeather] = useState({});
   const [isError, setIsError] = useState(false);
   const [myPosForecastResults, setmyPosForecastResults] = useState();
+  const [weatherForecastResults, setweatherForecastResults] = useState();
 
   const searchPressed = async () => {
     try {
@@ -52,20 +53,89 @@ const Weather = () => {
           setPosWeather(result);
         })
         .catch(error => {
-          console.error("An error occurred while fetching current weather:", error);
+          console.log("An error occurred while fetching current weather:", error);
         });
    
       // Fetch forecast data
       fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${myPos?.coords?.latitude}&lon=${myPos?.coords?.longitude}&appid=${process.env.REACT_APP_OPENWEATHER}&units=metric`)
         .then(response => response.json())
         .then(data => setmyPosForecastResults(data?.list))
-        .catch(error => console.error("An error occurred while fetching forecast:", error));
+        .catch(error => console.log("An error occurred while fetching forecast:", error));
     }
    }, [myPos]);
 
+
+   useEffect(() => {
+      if(Object.keys(weatherResults).length !== 0) {
+        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${weatherResults?.coord?.lat}&lon=${weatherResults?.coord?.lon}&appid=${process.env.REACT_APP_OPENWEATHER}&units=metric`)
+        .then(response => response.json())
+        .then(data => setweatherForecastResults(data?.list))
+        .catch(error => console.log("An error occurred while fetching forecast:", error));
+      }
+   }, [weatherResults]);
+
    
 
-  console.log(myPosForecastResults)
+
+
+
+  const extractRelevantForecasts = () => {
+    if (myPosForecastResults) {
+      const relevantForecasts = {};
+
+      myPosForecastResults.forEach(forecast => {
+        const forecastTime = new Date(forecast.dt_txt); //getting the date and time
+        const hours = forecastTime.getHours(); //getting the hours from a date using getHours() method
+
+        if (hours === 12 || hours === 15 || hours === 18) {
+          const date = forecastTime.toDateString();
+          if (!relevantForecasts[date]) {
+            relevantForecasts[date] = [];
+          }
+
+          relevantForecasts[date].push({
+            time: `${hours}:00`,
+            temp: forecast.main.temp.toFixed(0),
+          });
+        }
+      });
+
+      return relevantForecasts;
+    }
+    return {};
+  };
+  const extractRelevantForecastsWeather = () => {
+    if (weatherForecastResults) {
+      const relevantForecasts = {};
+
+      weatherForecastResults.forEach(forecast => {
+        const forecastTime = new Date(forecast.dt_txt); //getting the date and time
+        const hours = forecastTime.getHours(); //getting the hours from a date using getHours() method
+
+        if (hours === 12 || hours === 15 || hours === 18) {
+          const date = forecastTime.toDateString();
+          if (!relevantForecasts[date]) {
+            relevantForecasts[date] = [];
+          }
+
+          relevantForecasts[date].push({
+            time: `${hours}:00`,
+            temp: forecast.main.temp.toFixed(0),
+          });
+        }
+      });
+
+      return relevantForecasts;
+    }
+    return {};
+  };
+
+  const relevantForecastsByDate = extractRelevantForecasts();
+  const relevantForecastsByDateWeather = extractRelevantForecastsWeather();
+
+
+  
+
 
 
     return ( 
@@ -82,7 +152,7 @@ const Weather = () => {
               <button onClick={searchPressed}>Search</button>
               </div>
 
-            <div className='flex w-full absolute bottom-0  bg-white/75'>
+            <div className='flex w-full absolute bottom-0 justify-around bg-white/80'>
               <div className='flex flex-col justify-between'>
                 {/* <p className='text-[76px] text-center'>{search === "" ? posWeather?.main?.temp.toFixed(0) : weatherResults?.main?.temp.toFixed(0)}&deg;</p> */}
                 <p className='text-[76px] text-center'>
@@ -110,10 +180,41 @@ const Weather = () => {
               }
                 <p className='font-bold text-lg text-center'>{search === "" ? posWeather?.weather && posWeather.weather[0]?.main : weatherResults?.weather && weatherResults.weather[0]?.main}</p>
               </div>
-              <p>{isError ? errorMessage : null}</p>
+
+              
+            <div className="flex gap-12 mt-5">
+                {search === "" ? Object.entries(relevantForecastsByDate).map(([date, forecasts]) => (
+                  <div key={date} className="flex flex-col justify-between">
+                    <p className="text-xl font-bold">{date}</p>
+                    <div className="flex flex-col">
+                      {forecasts.map((forecast, index) => (
+                        <div key={index} className="flex justify-between px-4">
+                          <p className="">{forecast.time}</p>
+                          <p className="">{forecast.temp}°</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )) : 
+                Object.entries(relevantForecastsByDateWeather).map(([date, forecasts]) => (
+                  <div key={date} className="flex flex-col justify-between">
+                    <p className="text-xl font-bold">{date}</p>
+                    <div className="flex flex-col">
+                      {forecasts.map((forecast, index) => (
+                        <div key={index} className="flex justify-between px-4">
+                          <p className="">{forecast.time}</p>
+                          <p className="">{forecast.temp}°</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
             </div>
 
+              <p>{isError ? errorMessage : null}</p>
             </div>
+            </div>
+
               
 
         </section>
