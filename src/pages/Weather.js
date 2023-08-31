@@ -138,7 +138,6 @@ const Weather = () => {
   const relevantForecastsByDateWeather = extractRelevantForecastsWeather();
 
   useEffect(() => {
-  // fetch('https://api.teleport.org/api/urban_areas/slug:copenhagen/images/')
   fetch('https://api.teleport.org/api/urban_areas/')
   .then(response => response.json())
   .then(data => setCityResults(data._links['ua:item']))
@@ -191,7 +190,7 @@ useEffect(() => {
     return ( 
         <section className='max-w-full h-full'>
             <div className='w-full h-full relative flex justify-center'>
-              <img src={search === "" ? placeholder : imageToShow} alt="Placeholder" className='w-full object-cover'/>
+              <img src={search === "" ? placeholder : imageToShow} alt="Placeholder" className='w-full max-h-[691px] object-cover'/>
               <div className='absolute flex flex-col w-96 mt-10 items-center gap-6 max-w-full'>
               <input 
                   type="text" 
