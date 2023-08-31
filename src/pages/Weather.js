@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import placeholder from "../images/download.jpg"
+import placeholder from "../images/placeholder.jpg"
 
 
 const Weather = () => {
@@ -14,6 +14,8 @@ const Weather = () => {
   const [weatherForecastResults, setweatherForecastResults] = useState();
   const [cityResults, setCityResults] = useState();
   const [cityToFetch, setCityToFetch] = useState();
+  const [newUrlToFetch, setNewUrlToFetch] = useState();
+  const [imageToShow, setImageToShow] = useState(placeholder);
 
   const searchPressed = async () => {
     try {
@@ -166,12 +168,30 @@ useEffect(() => {
  }
 }, [search, posWeather, weatherResults, cityResults]);
 
-console.log(cityToFetch)
+useEffect(() => {
+  if(cityToFetch !== undefined) {
+    fetch(`${cityToFetch} `)
+  .then(response => response.json())
+  .then(data => setNewUrlToFetch(data?._links["ua:images"].href))
+  .catch(error => console.error(error));
+  }
+
+  if(newUrlToFetch !== undefined) {
+    fetch(`${newUrlToFetch} `)
+    .then(response => response.json())
+    .then(data => setImageToShow(data?.photos[0].image.web))
+    .catch(error => console.error(error));
+  }
+  
+
+}, [cityToFetch, newUrlToFetch, search]);
+
+
 
     return ( 
         <section className='max-w-full h-full'>
             <div className='w-full h-full relative flex justify-center'>
-              <img src={placeholder} alt="Placeholder" className='w-full object-cover'/>
+              <img src={search === "" ? placeholder : imageToShow} alt="Placeholder" className='w-full object-cover'/>
               <div className='absolute flex flex-col w-96 mt-10 items-center gap-6 max-w-full'>
               <input 
                   type="text" 
