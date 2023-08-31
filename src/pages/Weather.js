@@ -17,6 +17,10 @@ const Weather = () => {
   const [newUrlToFetch, setNewUrlToFetch] = useState(null);
   const [imageToShow, setImageToShow] = useState();
 
+  useEffect(() => {
+    document.title = "Weather App";  
+  }, []);
+
   const searchPressed = async () => {
     try {
         const response = await fetch(`${baseURL}weather?q=${search}&appid=${process.env.REACT_APP_OPENWEATHER}&units=metric`);
@@ -195,7 +199,7 @@ useEffect(() => {
     return ( 
         <section className='max-w-full h-full'>
             <div className='w-full h-full relative flex justify-center'>
-              <img src={imageToShow} alt="Placeholder" className='w-full max-h-[691px] object-cover'/>
+              <img src={imageToShow} alt="Placeholder" className='w-full h-full object-cover'/>
               <div className='absolute flex flex-col w-96 mt-10 items-center gap-6 max-w-full'>
               <input 
                   type="text" 
