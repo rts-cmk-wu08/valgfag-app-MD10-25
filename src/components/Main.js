@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 
 const Main = () => {
     return ( 
-        <main>
+        <main className="flex-grow">
             <Outlet/>
         </main>
      );

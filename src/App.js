@@ -8,12 +8,12 @@ import PWAPrompt from "react-ios-pwa-prompt"
 function App() {
   
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <Header/>
       <Main/>
       <Footer/>
       <PWAPrompt copyTitle="Add to homescreen"/>
-    </>
+    </div>
   );
 }
 

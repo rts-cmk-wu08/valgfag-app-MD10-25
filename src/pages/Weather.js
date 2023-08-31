@@ -12,6 +12,8 @@ const Weather = () => {
   const [isError, setIsError] = useState(false);
   const [myPosForecastResults, setmyPosForecastResults] = useState();
   const [weatherForecastResults, setweatherForecastResults] = useState();
+  const [cityResults, setCityResults] = useState();
+  const [cityToFetch, setCityToFetch] = useState();
 
   const searchPressed = async () => {
     try {
@@ -133,26 +135,55 @@ const Weather = () => {
   const relevantForecastsByDate = extractRelevantForecasts();
   const relevantForecastsByDateWeather = extractRelevantForecastsWeather();
 
+  useEffect(() => {
+  // fetch('https://api.teleport.org/api/urban_areas/slug:copenhagen/images/')
+  fetch('https://api.teleport.org/api/urban_areas/')
+  .then(response => response.json())
+  .then(data => setCityResults(data._links['ua:item']))
+  .catch(error => console.error(error));
+  }, []);   
 
-  
+useEffect(() => {
+ let cityToFetchValue;
 
+ if (search === "") {
+   cityToFetchValue = posWeather?.name;
+ } else {
+   cityToFetchValue = weatherResults?.name;
+ }
 
+ const filteredCities = cityResults?.filter(
+   city =>
+     city.name === cityToFetchValue || city.name.toLowerCase() === cityToFetchValue
+ );
+
+ if (filteredCities?.length === 0) {
+   console.log("No city found");
+ }
+
+ if (filteredCities && filteredCities?.length !== 0) {
+   setCityToFetch(filteredCities[0].href);
+ }
+}, [search, posWeather, weatherResults, cityResults]);
+
+console.log(cityToFetch)
 
     return ( 
-        <section>
-            <div className='w-full relative flex justify-center'>
-              <img src={placeholder} alt="Placeholder" className='w-full'/>
-              <div className='absolute flex flex-col w-96 mt-10'>
+        <section className='max-w-full h-full'>
+            <div className='w-full h-full relative flex justify-center'>
+              <img src={placeholder} alt="Placeholder" className='w-full object-cover'/>
+              <div className='absolute flex flex-col w-96 mt-10 items-center gap-6 max-w-full'>
               <input 
                   type="text" 
                   placeholder='Enter city/town'
                   onChange={(e) => setSearch(e.target.value)}
-                  className='rounded-xl h-8 pl-4'
+                  className='rounded-xl h-8 pl-4 w-56'
               />
-              <button onClick={searchPressed}>Search</button>
+              <button className='bg-white/80 rounded-xl w-36' onClick={searchPressed}>Search</button>
               </div>
 
-            <div className='flex w-full absolute bottom-0 justify-around bg-white/80'>
+            <div className='flex w-full absolute bottom-0 justify-between px-4 pb-2 bg-white/80 overflow-x-auto'>
+            {isError ? <p>{errorMessage}</p> : <>
               <div className='flex flex-col justify-between'>
                 {/* <p className='text-[76px] text-center'>{search === "" ? posWeather?.main?.temp.toFixed(0) : weatherResults?.main?.temp.toFixed(0)}&deg;</p> */}
                 <p className='text-[76px] text-center'>
@@ -164,14 +195,14 @@ const Weather = () => {
               {
                 search === "" && posWeather.weather ? (
                   <img
-                    className='w-[90px] mt-5 rounded-full h-auto'
+                    className='min-w-[100px] mt-5 rounded-full min-h-[100px]'
                     src={`https://openweathermap.org/img/wn/${posWeather.weather[0]?.icon}@2x.png`}
                     alt="icon"
                   />
                 ) : (
                   weatherResults?.weather && (
                     <img
-                      className='w-[90px] mt-5 rounded-full h-auto'
+                      className='min-w-[100px] mt-5 rounded-full min-h-[100px]'
                       src={`https://openweathermap.org/img/wn/${weatherResults.weather[0]?.icon}@2x.png`}
                       alt="icon"
                     />
@@ -185,10 +216,10 @@ const Weather = () => {
             <div className="flex gap-12 mt-5">
                 {search === "" ? Object.entries(relevantForecastsByDate).map(([date, forecasts]) => (
                   <div key={date} className="flex flex-col justify-between">
-                    <p className="text-xl font-bold">{date}</p>
+                    <p className="text-xl font-bold text-center">{date}</p>
                     <div className="flex flex-col">
                       {forecasts.map((forecast, index) => (
-                        <div key={index} className="flex justify-between px-4">
+                        <div key={index} className="flex gap-9 px-4">
                           <p className="">{forecast.time}</p>
                           <p className="">{forecast.temp}°</p>
                         </div>
@@ -198,10 +229,10 @@ const Weather = () => {
                 )) : 
                 Object.entries(relevantForecastsByDateWeather).map(([date, forecasts]) => (
                   <div key={date} className="flex flex-col justify-between">
-                    <p className="text-xl font-bold">{date}</p>
+                    <p className="text-xl font-bold text-center">{date}</p>
                     <div className="flex flex-col">
                       {forecasts.map((forecast, index) => (
-                        <div key={index} className="flex justify-between px-4">
+                        <div key={index} className="flex gap-9 px-4">
                           <p className="">{forecast.time}</p>
                           <p className="">{forecast.temp}°</p>
                         </div>
@@ -209,9 +240,8 @@ const Weather = () => {
                     </div>
                   </div>
                 ))}
-            </div>
+            </div> </>}
 
-              <p>{isError ? errorMessage : null}</p>
             </div>
             </div>
 
