@@ -13,9 +13,9 @@ const Weather = () => {
   const [myPosForecastResults, setmyPosForecastResults] = useState();
   const [weatherForecastResults, setweatherForecastResults] = useState();
   const [cityResults, setCityResults] = useState();
-  const [cityToFetch, setCityToFetch] = useState();
-  const [newUrlToFetch, setNewUrlToFetch] = useState();
-  const [imageToShow, setImageToShow] = useState(placeholder);
+  const [cityToFetch, setCityToFetch] = useState(null);
+  const [newUrlToFetch, setNewUrlToFetch] = useState(null);
+  const [imageToShow, setImageToShow] = useState();
 
   const searchPressed = async () => {
     try {
@@ -36,7 +36,7 @@ const Weather = () => {
         setIsError(false)
         setWeatherResults(result);
     } catch (error) {
-        console.error("An error occurred while processing the data:", error);
+        console.log("An error occurred while processing the data:", error);
     }
  };
 
@@ -141,7 +141,7 @@ const Weather = () => {
   fetch('https://api.teleport.org/api/urban_areas/')
   .then(response => response.json())
   .then(data => setCityResults(data._links['ua:item']))
-  .catch(error => console.error(error));
+  .catch(error => console.log(error));
   }, []);   
 
 useEffect(() => {
@@ -159,6 +159,8 @@ useEffect(() => {
  );
 
  if (filteredCities?.length === 0) {
+  setCityToFetch(null)
+  setImageToShow(placeholder)
    console.log("No city found");
  }
 
@@ -168,29 +170,32 @@ useEffect(() => {
 }, [search, posWeather, weatherResults, cityResults]);
 
 useEffect(() => {
-  if(cityToFetch !== undefined) {
+  if(cityToFetch !== null) {
     fetch(`${cityToFetch} `)
   .then(response => response.json())
   .then(data => setNewUrlToFetch(data?._links["ua:images"].href))
-  .catch(error => console.error(error));
+  .catch(error => console.log(error));
+  } else{
+    setNewUrlToFetch(null)
   }
 
-  if(newUrlToFetch !== undefined) {
+  if(newUrlToFetch !== null) {
     fetch(`${newUrlToFetch} `)
     .then(response => response.json())
     .then(data => setImageToShow(data?.photos[0].image.web))
-    .catch(error => console.error(error));
+    .catch(error => console.log(error));
+  } else {
+    setImageToShow(placeholder)
   }
   
 
-}, [cityToFetch, newUrlToFetch, search]);
-
+}, [cityToFetch, newUrlToFetch, search, imageToShow]);
 
 
     return ( 
         <section className='max-w-full h-full'>
             <div className='w-full h-full relative flex justify-center'>
-              <img src={search === "" ? placeholder : imageToShow} alt="Placeholder" className='w-full max-h-[691px] object-cover'/>
+              <img src={imageToShow} alt="Placeholder" className='w-full max-h-[691px] object-cover'/>
               <div className='absolute flex flex-col w-96 mt-10 items-center gap-6 max-w-full'>
               <input 
                   type="text" 
