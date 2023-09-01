@@ -210,7 +210,7 @@ useEffect(() => {
               <button className='bg-white/80 rounded-xl w-36' onClick={searchPressed}>Search</button>
               </div>
 
-            <div className='flex w-full absolute bottom-0 justify-between px-4 pb-2 bg-white/80 overflow-x-auto'>
+            <div className='flex w-full fixed bottom-0 justify-between px-4 pb-2 bg-white/80 overflow-x-auto'>
             {isError ? <p>{errorMessage}</p> : <>
               <div className='flex flex-col justify-between'>
                 {/* <p className='text-[76px] text-center'>{search === "" ? posWeather?.main?.temp.toFixed(0) : weatherResults?.main?.temp.toFixed(0)}&deg;</p> */}
