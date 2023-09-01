@@ -28,4 +28,7 @@ Hvilke andre funktionaliteter kunne du forestille dig, at applikationen kunne ha
 - Mulighed for at dele vejrprognoser med venner eller sociale medier
 - Mulighed for at slå dark mode til og fra 
 - Animerede ikoner eller baggrund basseret på vejret fx hvis det sneer skal der komme sne på baggrunden eller ikonet skal være en sky hvor der falder sne ned  
+
+
+link til netlify: https://valgfagmd.netlify.app/
  
